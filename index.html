@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TIDE Writing Framework Academy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #3b82f6;     
+            --dark-indigo: #1e1b4b;     
+            --bg-gradient-start: #eeeafe;
+            --bg-gradient-end: #e0f2fe;  
+            --card-bg: #ffffff;
+            --text-main: #0f172a;       
+            --text-muted: #475569;      
+            --border-color: #e2e8f0;    
+            
+            --topic-color: #10b981;     
+            --idea-color: #f59e0b;      
+            --detail-color: #f97316;    
+            --ending-color: #ef4444;    
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
+            color: var(--text-main);
+            margin: 0;
+            padding: 40px 20px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 880px;
+            margin: 0 auto;
+            background: var(--card-bg);
+            padding: 45px;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.06), 0 1px 3px rgba(15, 23, 42, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .header-brand {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        h1 {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--dark-indigo);
+            font-weight: 800;
+            font-size: 2.4em;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-subtitle {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 1.1em;
+            margin: 0;
+        }
+
+        h2, h3, h4 {
+            font-family: 'Quicksand', sans-serif;
+            color: var(--dark-indigo);
+            font-weight: 700;
+            margin-top: 0;
+        }
+
+        .progress-bar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 40px;
+            background: rgba(15, 23, 42, 0.05);
+            padding: 6px;
+            border-radius: 16px;
+        }
+
+        .progress-step {
+            flex: 1;
+            text-align: center;
+            padding: 12px 8px;
+            background: transparent;
+            font-weight: 700;
+            font-size: 0.9em;
+            border-radius: 12px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted);
+            cursor: pointer;
+        }
+
+        .progress-step:hover {
+            color: var(--dark-indigo);
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        .progress-step.active {
+            background: var(--dark-indigo);
+            color: white;
+            box-shadow: 0 4px 14px rgba(30, 27, 75, 0.2);
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .setup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 650px) {
+            .setup-grid { grid-template-columns: 1fr; }
+        }
+
+        .form-group { margin-bottom: 0; }
+        .form-group.full-width { grid-column: 1 / -1; margin-top: 5px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--dark-indigo);
+            font-size: 0.95em;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 16px;
+            font-family: inherit;
+            box-sizing: border-box;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            transition: all 0.2s ease;
+        }
+
+        select {
+            background-color: #f1f5f9;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        input[type="text"]:focus, textarea:focus, select:focus {
+            border-color: var(--primary-blue);
+            outline: none;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 14px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            background-color: var(--primary-blue);
+            color: white;
+            border: none;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 14px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+        }
+
+        button:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(59, 130, 246, 0.3);
+        }
+
+        button:active { transform: translateY(1px); }
+
+        button.secondary {
+            background-color: #f1f5f9;
+            color: var(--text-muted);
+            box-shadow: none;
+            border: 2px solid #e2e8f0;
+        }
+
+        button.secondary:hover {
+            background-color: #e2e8f0;
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .teacher-bypass-panel {
+            background: #eff6ff;
+            border: 2px dashed #bfdbfe;
+            padding: 22px;
+            border-radius: 18px;
+            margin-bottom: 35px;
+        }
+
+        .bypass-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .bypass-btn {
+            background-color: var(--dark-indigo);
+            padding: 12px;
+            font-size: 14px;
+            box-shadow: 0 4px 10px rgba(30, 27, 75, 0.15);
+        }
+        .bypass-btn:hover {
+            background-color: #312e81;
+        }
+
+        .transformation-hint {
+            background-color: #f0fdf4;
+            border-left: 5px solid var(--topic-color);
+            padding: 14px 18px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+            color: #166534;
+        }
+
+        .deconstruct-text {
+            font-size: 1.15em;
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 16px;
+            border-left: 6px solid var(--dark-indigo);
+            margin-bottom: 25px;
+        }
+
+        .sentence-block {
+            cursor: pointer;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 12px;
+            background: #ffffff;
+            border: 2px solid #e2e8f0;
+            display: block;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .sentence-block:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            transform: scale(1.005);
+        }
+
+        .sentence-block.selected {
+            border-color: var(--primary-blue);
+            background: #eff6ff;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+        }
+
+        .color-picker-panel {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+            display: none;
+        }
+
+        .picker-options {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .picker-btn {
+            padding: 12px 22px;
+            border-radius: 24px;
+            font-weight: 800;
+            color: white;
+            font-size: 0.95em;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+            transition: all 0.15s ease;
+        }
+        .picker-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+        }
+
+        .tide-t { background-color: var(--topic-color); color: white; }
+        .tide-i { background-color: var(--idea-color); color: white; }
+        .tide-d { background-color: var(--detail-color); color: white; }
+        .tide-e { background-color: var(--ending-color); color: white; }
+
+        .feedback-box {
+            background: #fef2f2;
+            border: 2px solid #fee2e2;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 20px;
+            color: #991b1b;
+            font-weight: 700;
+            display: none;
+        }
+
+        .feedback-box.success {
+            background: #f0fdf4;
+            border: 2px solid #dcfce7;
+            color: #166534;
+        }
+
+        .practice-box {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            padding: 24px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+        }
+
+        .sub-step-container { display: none; }
+        .sub-step-container.active { display: block; }
+
+        .help-panel {
+            background: #eff6ff;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 15px;
+            display: none;
+            border-left: 4px solid var(--primary-blue);
+        }
+
+        .help-panel ul { margin: 8px 0 0 0; padding-left: 20px; }
+
+        .live-notebook-preview {
+            margin-top: 35px;
+            padding: 25px;
+            background: #fffdf5;
+            border: 2px solid #fef08a;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(254, 240, 138, 0.15);
+        }
+
+        .notebook-line {
+            margin-bottom: 12px;
+            font-size: 1.15em;
+            font-weight: 600;
+            border-bottom: 1px dashed #fef08a;
+            padding-bottom: 6px;
+        }
+
+        .badge-mode {
+            display: inline-block;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.85em;
+            font-weight: 800;
+            background: #e2e8f0;
+            color: var(--text-muted);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-mode.ext {
+            background: #fae8ff;
+            color: #86198f;
+            border: 1px solid #f5d0fe;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-brand">
+        <h1>TIDE Writing Academy</h1>
+        <p class="brand-subtitle">Master structural composition sentence-by-sentence</p>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-step active" id="p-setup" onclick="handleDirectNav('setup', 'p-setup')">1. Registration</div>
+        <div class="progress-step" id="p-read" onclick="handleDirectNav('read', 'p-read')">2. Deconstruct</div>
+        <div class="progress-step" id="p-practice" onclick="handleDirectNav('practice', 'p-practice')">3. Sentence Practice</div>
+        <div class="progress-step" id="p-write" onclick="handleDirectNav('write', 'p-write')">4. Paragraph Writing</div>
+        <div class="progress-step" id="p-done" onclick="handleDirectNav('done', 'p-done')">5. Submit</div>
+    </div>
+
+    <div class="screen active" id="screen-setup">
+        <div class="teacher-bypass-panel">
+            <h4 style="margin: 0; color: var(--dark-indigo); font-size: 1.1em;">🏫 Teacher Routing Hub: Skip directly to a task</h4>
+            <div class="bypass-grid">
+                <button class="bypass-btn" onclick="jumpDirectlyTo('read', 'p-read')">Step 2: Deconstruct</button>
+                <button class="bypass-btn" onclick="jumpDirectlyTo('practice', 'p-practice')">Step 3: Sentence Arena</button>
+                <button class="bypass-btn" onclick="jumpDirectlyTo('write', 'p-write')">Step 4: Paragraph Creator</button>
+            </div>
+        </div>
+
+        <h2 style="border-bottom: 2px solid var(--border-color); padding-bottom: 10px; margin-bottom: 25px;">Student Configuration</h2>
+        
+        <div class="setup-grid">
+            <div class="form-group">
+                <label for="student-name">First and Last Name:</label>
+                <input type="text" id="student-name" placeholder="e.g., Sarah Smith">
+            </div>
+            <div class="form-group">
+                <label for="year-level">Year Level:</label>
+                <select id="year-level">
+                    <option value="">-- Select Year Level --</option>
+                    <option value="Year 5">Year 5</option>
+                    <option value="Year 6">Year 6</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="writing-mode">Difficulty Level:</label>
+                <select id="writing-mode">
+                    <option value="Standard">Standard Mode (Focus on baseline TIDE sentences)</option>
+                    <option value="Extension">Extension Mode (Strict Compound & Complex requirements)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="lesson-topic">Topic Selection:</label>
+                <select id="lesson-topic" onchange="toggleCustomInput()">
+                    <option value="Volcanoes">Volcanoes Model Text</option>
+                    <option value="Custom">Custom Topic (Paste Your Own Model Text)</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width" id="custom-topic-group" style="display: none;">
+                <label for="custom-topic-name">Custom Topic Name:</label>
+                <input type="text" id="custom-topic-name" placeholder="e.g., Sharks" style="margin-bottom: 15px;">
+                
+                <label for="custom-source-text">Paste Model Text Sentences (Include TIDE tags):</label>
+                <textarea id="custom-source-text" rows="5" placeholder="[T] Sharks are vital predators. [I] First, they track prey. [D] For example, they sense heartbeats. [E] Therefore, protecting them matters."></textarea>
+            </div>
+        </div>
+
+        <button style="margin-top: 15px; width: 100%; display: block;" onclick="startLesson()">Begin Writing Sequence</button>
+    </div>
+
+    <div class="screen" id="screen-read">
+        <h2>Deconstruct the Model Text</h2>
+        <p>Select a sentence from the text below, then identify its matching TIDE structural category.</p>
+        
+        <div class="deconstruct-text" id="interactive-text-container"></div>
+
+        <div class="color-picker-panel" id="color-picker-panel">
+            <strong id="picker-prompt-text" style="color: var(--dark-indigo); font-size: 1.05em;">Identify the structure of the selected text:</strong>
+            <div class="picker-options">
+                <button class="picker-btn tide-t" onclick="submitStructuralLabel('T')">Topic Sentence [T]</button>
+                <button class="picker-btn tide-i" onclick="submitStructuralLabel('I')">Important Idea [I]</button>
+                <button class="picker-btn tide-d" onclick="submitStructuralLabel('D')">Detail / Evidence [D]</button>
+                <button class="picker-btn tide-e" onclick="submitStructuralLabel('E')">Ending Sentence [E]</button>
+            </div>
+        </div>
+
+        <div class="feedback-box" id="read-feedback"></div>
+
+        <div class="btn-group">
+            <button class="secondary" onclick="renderDeconstructionText()">Reset Analysis</button>
+            <button onclick="goToPracticeArena()">Proceed to Sentence Practice</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-practice">
+        <h2>Sentence Structure Practice</h2>
+        <p>Transform your thoughts progressively through three grammatical phases.</p>
+        
+        <div class="sub-step-container active" id="p-sub-1">
+            <div class="practice-box">
+                <h4>Exercise 1: The Simple Sentence</h4>
+                <label for="practice-simple">Write a short, simple statement about your topic containing just one subject and one action:</label>
+                <input type="text" id="practice-simple" placeholder="e.g., Magma builds up inside the chamber.">
+            </div>
+            <div class="feedback-box" id="p1-feedback"></div>
+            <div class="btn-group">
+                <button class="secondary" onclick="forceEarlyExitSubmit()">Finish & Submit Now</button>
+                <button onclick="validateExercise1()">Verify Simple Sentence</button>
+            </div>
+        </div>
+
+        <div class="sub-step-container" id="p-sub-2">
+            <div class="practice-box">
+                <h4>Exercise 2: Transform into a Compound Sentence</h4>
+                <div class="transformation-hint">
+                    <strong>Your Simple Sentence:</strong> <span id="mirror-simple-1">...</span>
+                </div>
+                <label for="practice-compound">Modify your sentence above. Add a comma followed by a linking word (<strong>but, so, and</strong>) to connect a second complete idea:</label>
+                <textarea id="practice-compound" rows="3" placeholder="e.g., Magma builds up inside the chamber, so the volcano rumbles for days."></textarea>
+            </div>
+            <div class="feedback-box" id="p2-feedback"></div>
+            <div class="btn-group">
+                <button class="secondary" onclick="forceEarlyExitSubmit()">Finish & Submit Now</button>
+                <button onclick="validateExercise2()">Verify Compound Transformation</button>
+            </div>
+        </div>
+
+        <div class="sub-step-container" id="p-sub-3">
+            <div class="practice-box">
+                <h4>Exercise 3: Transform into a Complex Sentence</h4>
+                <div class="transformation-hint">
+                    <strong>Your Original Thought:</strong> <span id="mirror-simple-2">...</span>
+                </div>
+                <label for="practice-complex">Take your core idea and rewrite it by adding an introductory joining word (<strong>When, While, Because, Although</strong>) or an <strong>-ly adverb</strong> right at the start. Don't forget the comma after the opener!</label>
+                <textarea id="practice-complex" rows="3" placeholder="e.g., While magma builds up inside the chamber, dangerous hot gas escapes into the sky."></textarea>
+            </div>
+            <div class="feedback-box" id="p3-feedback"></div>
+            <div class="btn-group">
+                <button class="secondary" onclick="forceEarlyExitSubmit()">Finish & Submit Now</button>
+                <button onclick="validateExercise3()">Verify & Advance to Paragraph</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-write">
+        <div id="mode-badge-display" class="badge-mode">Standard Mode</div>
+        <h2 id="write-step-title">Step 1: Write your Green Topic Sentence</h2>
+        <p id="write-step-desc">Introduce the overall concept of your paragraph clearly.</p>
+
+        <div class="form-group">
+            <textarea id="student-sentence-input" rows="4" placeholder="Type your paragraph sentence here..." oninput="updateLiveSentenceCache()"></textarea>
+        </div>
+
+        <div class="feedback-box" id="write-feedback"></div>
+        
+        <div class="help-panel" id="help-panel">
+            <strong>Sentence Construction Examples:</strong>
+            <ul id="help-list"></ul>
+        </div>
+
+        <div class="btn-group">
+            <button class="secondary" id="btn-write-back" onclick="navigateStep(-1)">Back / Edit Previous</button>
+            <button class="secondary" onclick="showHelp()">Show Sentence Starters</button>
+            <button id="btn-write-next" onclick="verifyAndNextSentence()">Check & Save Sentence</button>
+        </div>
+
+        <div class="live-notebook-preview">
+            <h4 style="margin-top:0; color: #b45309;">📝 Paragraph Draft Paper:</h4>
+            <div id="live-notebook-content"></div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-done">
+        <h2>Paragraph Assembly Complete</h2>
+        <p>Review your compiled text below before submitting the finalized document.</p>
+        
+        <div id="final-preview" style="background:#f8fafc; padding:25px; border-radius:16px; margin-bottom:25px; border:2px solid #e2e8f0; white-space: pre-wrap; font-weight:600; color: var(--text-main);"></div>
+
+        <div class="btn-group">
+            <button class="secondary" id="btn-edit-fallback" onclick="returnToEditFromEnd()">Edit Draft</button>
+            <button onclick="submitToGoogleForm()">Transmit Data to Ledger Form</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const FORM_VIEW_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfpsFKJzeAfu8NBSSh55fWBBJDNpX6wxFxJHyeeZkl2oe-cWQ/viewform";
+    
+    const ENTRY_IDS = {
+        name: "entry.34377563",
+        year: "entry.181720606",
+        topic: "entry.1075357011",
+        stats: "entry.74262131",
+        text: "entry.1654113150",
+        feedback: "entry.155014666",
+        
+        // Exact matching structure fields extracted from form metadata URL
+        practiceSimple: "entry.373027028",   
+        practiceCompound: "entry.1421095894", 
+        practiceComplex: "entry.11100232"   
+    };
+
+    const volcanoPassageVariants = [
+        [
+            { type: 'T', text: "Volcanoes are fascinating yet highly dangerous geological features found across Earth's surface." },
+            { type: 'I', text: "The primary structural hazard stems from how a volcano builds up pressure before erupting." },
+            { type: 'D', text: "For example, underground magma can reach temperatures exceeding 1200 degrees Celsius before exploding outward." },
+            { type: 'I', text: "In addition to molten rock, eruptions release massive toxic clouds into the upper skies." },
+            { type: 'D', text: "Specifically, dangerous clouds of sulfur dioxide and ash can choke out sunlight for miles around." },
+            { type: 'E', text: "Ultimately, these explosive elements prove that volcanoes completely dominate their surrounding environments." }
+        ]
+    ];
+
+    let currentLessonData = [];
+    let determinedTopicName = "Volcanoes";
+    let selectedSentenceIndex = null;
+    let activeWriteIndex = 0;
+    let typedSentences = { 0: "", 1: "", 2: "", 3: "", 4: "", 5: "" };
+    let currentSelectedMode = "Standard";
+    let reachedParagraphStage = false;
+    let practiceCache = { simple: "", compound: "", complex: "" };
+
+    const writeSteps = [
+        { key: 'T', name: 'Topic Sentence (Green)', color: 'var(--topic-color)', desc: 'Introduce the core topic clearly.', help: ['Many scientists observe that...', 'Across the world, volcanic regions impact...'] },
+        { key: 'I1', name: 'First Important Idea (Yellow)', color: 'var(--idea-color)', desc: 'Introduce your first structural sub-topic category.', help: ['One critical feature to analyze involves...', 'First of all, volcanoes can be categorized by...'] },
+        { key: 'D1', name: 'First Detail / Evidence (Orange)', color: 'var(--detail-color)', desc: 'Provide explicit evidence.', help: ['For instance, Mount Vesuvius, a highly volatile mountain, erupted...', 'Data shows that lava, a molten liquid rock, measures...'] },
+        { key: 'I2', name: 'Second Important Idea (Yellow)', color: 'var(--idea-color)', desc: 'Switch to a brand new sub-topic concept.', help: ['Aside from physical structures, geographic distribution shows...', 'In addition to shape, internal pressure mechanics determine...'] },
+        { key: 'D2', name: 'Second Detail / Evidence (Orange)', color: 'var(--detail-color)', desc: 'Provide data or proof for your second idea.', help: ['Specifically, records indicate that...', 'To illustrate this point, over forty eruptions occur...'] },
+        { key: 'E', name: 'Ending Sentence (Red)', color: 'var(--ending-color)', desc: 'Synthesise your main points and state the summary conclusion.', help: ['Ultimately, assessing these variables proves that...', 'Therefore, grouping classifications helps scientists predict...'] }
+    ];
+
+    function toggleCustomInput() {
+        const val = document.getElementById('lesson-topic').value;
+        document.getElementById('custom-topic-group').style.display = (val === 'Custom') ? 'block' : 'none';
+    }
+
+    function initializeBackgroundData() {
+        currentSelectedMode = document.getElementById('writing-mode').value;
+        const topicSelect = document.getElementById('lesson-topic').value;
+        
+        if (topicSelect === 'Custom') {
+            determinedTopicName = document.getElementById('custom-topic-name').value.trim() || "Custom Topic";
+            const rawText = document.getElementById('custom-source-text').value.trim();
+            if(rawText) {
+                const rawSentences = rawText.split(/(?=\[[TIDE]\])/g);
+                currentLessonData = rawSentences.map(s => {
+                    let type = 'T';
+                    if(s.startsWith('[I]')) type = 'I';
+                    if(s.startsWith('[D]')) type = 'D';
+                    if(s.startsWith('[E]')) type = 'E';
+                    return { type: type, text: s.replace(/\[[TIDE]\]/g, '').trim() };
+                }).filter(obj => obj.text.length > 2);
+            } else {
+                currentLessonData = [...volcanoPassageVariants[0]];
+            }
+        } else {
+            determinedTopicName = "Volcanoes";
+            currentLessonData = [...volcanoPassageVariants[0]];
+        }
+
+        const badge = document.getElementById('mode-badge-display');
+        badge.innerText = currentSelectedMode + " Challenge Activated";
+        badge.className = (currentSelectedMode === 'Extension') ? "badge-mode ext" : "badge-mode";
+    }
+
+    function startLesson() {
+        const name = document.getElementById('student-name').value.trim();
+        const year = document.getElementById('year-level').value;
+        if(!name || !year) return alert("Complete Name and Year Level registration fields.");
+        
+        initializeBackgroundData();
+        switchScreen('read', 'p-read');
+        renderDeconstructionText();
+    }
+
+    function jumpDirectlyTo(screenId, stepId) {
+        const name = document.getElementById('student-name').value.trim();
+        const year = document.getElementById('year-level').value;
+        if(!name || !year) return alert("Please enter Student Name and Year Level before skipping ahead.");
+        
+        initializeBackgroundData();
+        
+        if (screenId === 'read') renderDeconstructionText();
+        if (screenId === 'write') {
+            reachedParagraphStage = true;
+            updateWriteWizardStep();
+        }
+        switchScreen(screenId, stepId);
+    }
+
+    function handleDirectNav(screenId, stepId) {
+        const name = document.getElementById('student-name').value.trim();
+        const year = document.getElementById('year-level').value;
+        if(!name || !year) return; 
+        
+        initializeBackgroundData();
+        if (screenId === 'read') renderDeconstructionText();
+        if (screenId === 'write') {
+            reachedParagraphStage = true;
+            updateWriteWizardStep();
+        }
+        if (screenId === 'done') showFinalPreview();
+        
+        switchScreen(screenId, stepId);
+    }
+
+    function renderDeconstructionText() {
+        const container = document.getElementById('interactive-text-container');
+        container.innerHTML = "";
+        document.getElementById('color-picker-panel').style.display = "none";
+        document.getElementById('read-feedback').style.display = "none";
+        selectedSentenceIndex = null;
+
+        currentLessonData.forEach((item, idx) => {
+            let div = document.createElement('div');
+            div.className = "sentence-block";
+            div.id = `sentence-block-${idx}`;
+            div.innerText = item.text;
+            div.onclick = () => highlightSentenceBlock(idx);
+            container.appendChild(div);
+        });
+    }
+
+    function highlightSentenceBlock(index) {
+        document.querySelectorAll('.sentence-block').forEach(b => b.classList.remove('selected'));
+        selectedSentenceIndex = index;
+        document.getElementById(`sentence-block-${index}`).classList.add('selected');
+        document.getElementById('color-picker-panel').style.display = "block";
+        document.getElementById('read-feedback').style.display = "none";
+    }
+
+    function submitStructuralLabel(assignedType) {
+        if(selectedSentenceIndex === null) return;
+        const correctType = currentLessonData[selectedSentenceIndex].type;
+        const block = document.getElementById(`sentence-block-${selectedSentenceIndex}`);
+        const fbox = document.getElementById('read-feedback');
+        fbox.style.display = "block";
+
+        if(assignedType === correctType) {
+            fbox.className = "feedback-box success";
+            fbox.innerText = "Correct classification verified.";
+            if(correctType === 'T') block.style.backgroundColor = 'var(--topic-color)', block.style.color = 'white';
+            if(correctType === 'I') block.style.backgroundColor = 'var(--idea-color)', block.style.color = 'white';
+            if(correctType === 'D') block.style.backgroundColor = 'var(--detail-color)', block.style.color = 'white';
+            if(correctType === 'E') block.style.backgroundColor = 'var(--ending-color)', block.style.color = 'white';
+            block.style.border = "2px solid transparent";
+            document.getElementById('color-picker-panel').style.display = "none";
+            selectedSentenceIndex = null;
+        } else {
+            fbox.className = "feedback-box";
+            let labels = { T: 'Topic Sentence', I: 'Important Idea', D: 'Detail', E: 'Ending Sentence' };
+            fbox.innerText = `Incorrect structural designation. This line functions as a ${labels[correctType]}. Re-evaluate and re-select.`;
+        }
+    }
+
+    function goToPracticeArena() {
+        switchScreen('practice', 'p-practice');
+    }
+
+    function validateExercise1() {
+        const val = document.getElementById('practice-simple').value.trim();
+        const fbox = document.getElementById('p1-feedback');
+        fbox.style.display = "block";
+
+        if(!/^[A-Z]/.test(val) || !/[.!?]$/.test(val)) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "Punctuation Check: Ensure beginning capitalization and standard ending punctuation rules are applied.";
+            return;
+        }
+        if(val.includes(",") || val.includes(" because ") || val.includes(" and ") || val.includes(" so ")) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "Structure Check: Your sentence contains multiple clauses. Simplify it to one independent action.";
+            return;
+        }
+        
+        practiceCache.simple = val;
+        document.getElementById('mirror-simple-1').innerText = val;
+        document.getElementById('mirror-simple-2').innerText = val;
+        
+        fbox.className = "feedback-box success";
+        fbox.innerText = "Simple sentence structure verified. Moving to Compound Transformation.";
+        setTimeout(() => {
+            document.getElementById('p-sub-1').classList.remove('active');
+            document.getElementById('p-sub-2').classList.add('active');
+        }, 1500);
+    }
+
+    function validateExercise2() {
+        const val = document.getElementById('practice-compound').value.trim();
+        const fbox = document.getElementById('p2-feedback');
+        fbox.style.display = "block";
+
+        let lower = val.toLowerCase();
+        if(!/^[A-Z]/.test(val) || !/[.!?]$/.test(val)) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "Punctuation Check: Ensure standard sentence start and end punctuation marks are present.";
+            return;
+        }
+        if(!lower.includes(", but") && !lower.includes(", so") && !lower.includes(", and")) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "Comma & Conjunction Check: Connect your clauses using a comma directly followed by a linking word (e.g., ', so', ', and', or ', but').";
+            return;
+        }
+        
+        practiceCache.compound = val;
+        fbox.className = "feedback-box success";
+        fbox.innerText = "Compound structure verified. Moving to Complex Transformation.";
+        setTimeout(() => {
+            document.getElementById('p-sub-2').classList.remove('active');
+            document.getElementById('p-sub-3').classList.add('active');
+        }, 1500);
+    }
+
+    function validateExercise3() {
+        const val = document.getElementById('practice-complex').value.trim();
+        const fbox = document.getElementById('p3-feedback');
+        fbox.style.display = "block";
+
+        let lower = val.toLowerCase();
+        if(!/^[A-Z]/.test(val) || !/[.!?]$/.test(val)) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "Confirm baseline capitalization and ending punctuation are accurate.";
+            return;
+        }
+        if(!val.includes(",")) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "Comma Check: This complex structure requires a comma to separate your introductory element from the main thought.";
+            return;
+        }
+
+        const validW = ['when', 'while', 'because', 'although', 'if', 'since'];
+        let hasComplexStart = validW.some(w => lower.startsWith(w)) || /^[A-Z][a-z]+ly,/.test(val);
+        
+        if(!hasComplexStart) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "Starter Check: Begin your sentence with an adverb ending in '-ly' or a joining word (e.g., When, While, Because).";
+            return;
+        }
+
+        practiceCache.complex = val;
+        reachedParagraphStage = true;
+        fbox.className = "feedback-box success";
+        fbox.innerText = "Complex structure verified. Advancing to full paragraph building.";
+        setTimeout(() => {
+            switchScreen('write', 'p-write');
+            updateWriteWizardStep();
+        }, 1500);
+    }
+
+    function forceEarlyExitSubmit() {
+        practiceCache.simple = document.getElementById('practice-simple').value.trim() || practiceCache.simple;
+        practiceCache.compound = document.getElementById('practice-compound').value.trim() || practiceCache.compound;
+        practiceCache.complex = document.getElementById('practice-complex').value.trim() || practiceCache.complex;
+        
+        reachedParagraphStage = false;
+        showFinalPreview();
+    }
+
+    function updateLiveSentenceCache() {
+        typedSentences[activeWriteIndex] = document.getElementById('student-sentence-input').value;
+        renderLiveNotebookPreview();
+    }
+
+    function renderLiveNotebookPreview() {
+        const notebook = document.getElementById('live-notebook-content');
+        notebook.innerHTML = "";
+        writeSteps.forEach((step, idx) => {
+            if(typedSentences[idx] && typedSentences[idx].trim().length > 0) {
+                let div = document.createElement('div');
+                div.className = "notebook-line";
+                div.innerHTML = `<span style="background-color:${step.color}; color:white; padding: 2px 8px; border-radius:6px; font-size:0.8em; margin-right:8px; font-weight:800;">${step.key}</span> ${typedSentences[idx]}`;
+                notebook.appendChild(div);
+            }
+        });
+    }
+
+    function updateWriteWizardStep() {
+        const currentStep = writeSteps[activeWriteIndex];
+        let descText = currentStep.desc;
+        let helpStarters = [...currentStep.help];
+
+        if (currentSelectedMode === 'Extension') {
+            if (currentStep.key === 'T') {
+                descText = "EXTENSION TASK: Write your Topic Sentence as a COMPOUND sentence. You must connect two complete thoughts using a comma followed by 'but' or 'so'.";
+                helpStarters = ['Volcanoes form breathtaking landscapes, but they harbor deadly environmental forces.', 'Magma remains hidden deep underground, so human populations often underestimate...'];
+            } else if (currentStep.key === 'I1' || currentStep.key === 'I2') {
+                descText = "EXTENSION TASK: Write this Idea sentence as a COMPLEX sentence. You must start with an Adverb (-ly word) or a W-Start (While, When, Although) followed by a comma.";
+                helpStarters = ['While pressure shifts silently inside the earth, hot gas escapes...', 'Slowly, shifting tectonic boundaries pull apart...'];
+            } else if (currentStep.key === 'D1' || currentStep.key === 'D2') {
+                descText = "EXTENSION TASK: Write this Detail sentence incorporating an APPOSITIVE phrase. Drop an extra noun description directly into the middle wrapped in two commas.";
+                helpStarters = ['Mount Vesuvius, an infamous Italian stratovolcano, exploded...', 'Lava fields, burning expanses of liquid rock, solidify over months...'];
+            }
+        }
+
+        document.getElementById('write-step-title').innerText = currentStep.name;
+        document.getElementById('write-step-title').style.color = currentStep.color;
+        document.getElementById('write-step-desc').innerText = descText;
+        document.getElementById('student-sentence-input').value = typedSentences[activeWriteIndex] || "";
+        document.getElementById('write-feedback').style.display = "none";
+        document.getElementById('help-panel').style.display = "none";
+        document.getElementById('btn-write-back').style.visibility = (activeWriteIndex === 0) ? 'hidden' : 'visible';
+        
+        currentStep.activeHelpCache = helpStarters;
+        renderLiveNotebookPreview();
+    }
+
+    function showHelp() {
+        const currentStep = writeSteps[activeWriteIndex];
+        const hlist = document.getElementById('help-list');
+        hlist.innerHTML = "";
+        
+        const targets = currentStep.activeHelpCache || currentStep.help;
+        targets.forEach(starter => {
+            let li = document.createElement('li');
+            li.innerText = starter;
+            hlist.appendChild(li);
+        });
+        document.getElementById('help-panel').style.display = "block";
+    }
+
+    function navigateStep(direction) {
+        let targetIndex = activeWriteIndex + direction;
+        if(targetIndex >= 0 && targetIndex < writeSteps.length) {
+            activeWriteIndex = targetIndex;
+            updateWriteWizardStep();
+        }
+    }
+
+    function verifyAndNextSentence() {
+        const textInput = document.getElementById('student-sentence-input').value.trim();
+        const fbox = document.getElementById('write-feedback');
+        const currentStep = writeSteps[activeWriteIndex];
+        const lowerInput = textInput.toLowerCase();
+
+        if(textInput.length < 5) {
+            fbox.style.display = "block";
+            fbox.className = "feedback-box";
+            fbox.innerText = "Input field requires a complete sentence structure.";
+            return;
+        }
+
+        const blockedStarters = ['the ', 'then ', 'i '];
+        let startsWithBlocked = blockedStarters.some(starter => lowerInput.startsWith(starter));
+        if (startsWithBlocked) {
+            fbox.style.display = "block";
+            fbox.className = "feedback-box";
+            fbox.innerText = "Repetition Check Failed: Do not rely on generic openings like 'The', 'Then', or 'I'. Choose a more descriptive starter.";
+            return;
+        }
+
+        if (!/^[A-Z]/.test(textInput) || !/[.!?]$/.test(textInput)) {
+            fbox.style.display = "block";
+            fbox.className = "feedback-box";
+            fbox.innerText = "Punctuation Error: Ensure standard starting capitalization and matching ending punctuation marks.";
+            return;
+        }
+
+        if (currentSelectedMode === 'Extension') {
+            if (currentStep.key === 'T') {
+                if (!lowerInput.includes(", but") && !lowerInput.includes(", so") && !lowerInput.includes(", and")) {
+                    fbox.style.display = "block";
+                    fbox.className = "feedback-box";
+                    fbox.innerText = "Extension Target Missed: Your Topic Sentence must be a Compound Sentence. Connect two complete thoughts with a comma followed by 'but', 'so', or 'and'.";
+                    return;
+                }
+            }
+            if (currentStep.key === 'I1' || currentStep.key === 'I2') {
+                if (!textInput.includes(",")) {
+                    fbox.style.display = "block";
+                    fbox.className = "feedback-box";
+                    fbox.innerText = "Extension Target Missed: Complex sentences require an introductory comma separator.";
+                    return;
+                }
+                const complexStarters = ['when', 'while', 'because', 'although', 'if', 'since'];
+                let validatesComplex = complexStarters.some(w => lowerInput.startsWith(w)) || /^[A-Z][a-z]+ly,/.test(textInput);
+                if (!validatesComplex) {
+                    fbox.style.display = "block";
+                    fbox.className = "feedback-box";
+                    fbox.innerText = "Extension Target Missed: Start this Idea sentence using an advanced structural opener (an -ly adverb or a word like When, While, Because).";
+                    return;
+                }
+            }
+            if (currentStep.key === 'D1' || currentStep.key === 'D2') {
+                let commaCount = (textInput.match(/,/g) || []).length;
+                if (commaCount < 2) {
+                    fbox.style.display = "block";
+                    fbox.className = "feedback-box";
+                    fbox.innerText = "Extension Target Missed: You must add an appositive description phrase inside this sentence, wrapped entirely in two commas.";
+                    return;
+                }
+            }
+        }
+
+        if(currentStep.key === 'I2') {
+            const forbiddenOverlap = ['type', 'kind', 'composite', 'shield', 'categories'];
+            let repeatsCategory = forbiddenOverlap.some(word => lowerInput.includes(word));
+            if (repeatsCategory) {
+                fbox.style.display = "block";
+                fbox.className = "feedback-box";
+                fbox.innerText = "Structural Error: This sentence repeats classification concepts from your first point. Shift to a new sub-topic direction.";
+                return;
+            }
+        }
+
+        typedSentences[activeWriteIndex] = textInput;
+        activeWriteIndex++;
+
+        if(activeWriteIndex < writeSteps.length) {
+            updateWriteWizardStep();
+        } else {
+            showFinalPreview();
+        }
+    }
+
+    function showFinalPreview() {
+        switchScreen('done', 'p-done');
+        const preview = document.getElementById('final-preview');
+        
+        let paragraphHasContent = false;
+        writeSteps.forEach((s, idx) => { if (typedSentences[idx] && typedSentences[idx].length > 2) paragraphHasContent = true; });
+
+        if (!paragraphHasContent) {
+            document.getElementById('btn-edit-fallback').style.display = 'none';
+            preview.innerHTML = `<h3 style="margin-top:0;">Compiled Sentence Exercises (${currentSelectedMode} Mode):</h3>`;
+            preview.innerHTML += `<strong>Exercise 1 (Simple Sentence):</strong> ${practiceCache.simple || "[Not completed/Bypassed]"}\n\n`;
+            preview.innerHTML += `<strong>Exercise 2 (Compound Sentence):</strong> ${practiceCache.compound || "[Not completed/Bypassed]"}\n\n`;
+            preview.innerHTML += `<strong>Exercise 3 (Complex Sentence):</strong> ${practiceCache.complex || "[Not completed/Bypassed]"}\n\n`;
+            preview.innerHTML += `<span style="color:var(--ending-color); font-weight:bold;">[Paragraph phase omitted or skipped via manual router]</span>`;
+        } else {
+            document.getElementById('btn-edit-fallback').style.display = 'inline-block';
+            preview.innerHTML = `<h3 style="margin-top:0;">Compiled Paragraph Output (${currentSelectedMode} Mode):</h3>`;
+            writeSteps.forEach((step, idx) => {
+                let contentLine = typedSentences[idx] || "[Bypassed/Blank]";
+                preview.innerHTML += `<span style="background-color:${step.color}; color:white; padding:3px 9px; border-radius:6px; font-size:0.85em; font-weight:800; margin-right:8px;">${step.name}</span>\n${contentLine}\n\n`;
+            });
+        }
+    }
+
+    function returnToEditFromEnd() {
+        activeWriteIndex = writeSteps.length - 1;
+        switchScreen('write', 'p-write');
+        updateWriteWizardStep();
+    }
+
+    function submitToGoogleForm() {
+        const name = document.getElementById('student-name').value;
+        const year = document.getElementById('year-level').value;
+        
+        const statsSummary = `Mode: ${currentSelectedMode}`;
+        
+        let combinedParagraphText = "";
+        let checkContent = false;
+        writeSteps.forEach((step, idx) => {
+            if (typedSentences[idx]) {
+                combinedParagraphText += `${typedSentences[idx]} `;
+                checkContent = true;
+            }
+        });
+
+        if (!checkContent) {
+            combinedParagraphText = "[Student submitted practice milestones only]";
+        }
+
+        // URL Parameters fully updated and mapped to your explicit Google Form question IDs
+        const prefilledUrl = `${FORM_VIEW_URL}?usp=pp_url` +
+            `&${ENTRY_IDS.name}=${encodeURIComponent(name)}` +
+            `&${ENTRY_IDS.year}=${encodeURIComponent(year)}` +
+            `&${ENTRY_IDS.topic}=${encodeURIComponent(determinedTopicName)}` +
+            `&${ENTRY_IDS.stats}=${encodeURIComponent(statsSummary)}` +
+            `&${ENTRY_IDS.text}=${encodeURIComponent(combinedParagraphText)}` +
+            `&${ENTRY_IDS.feedback}=Formulated via Sentence Expansion` +
+            `&${ENTRY_IDS.practiceSimple}=${encodeURIComponent(practiceCache.simple || '')}` +
+            `&${ENTRY_IDS.practiceCompound}=${encodeURIComponent(practiceCache.compound || '')}` +
+            `&${ENTRY_IDS.practiceComplex}=${encodeURIComponent(practiceCache.complex || '')}`;
+
+        window.open(prefilledUrl, '_blank');
+    }
+
+    function switchScreen(screenId, stepId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.progress-step').forEach(s => s.classList.remove('active'));
+        document.getElementById(`screen-${screenId}`).classList.add('active');
+        document.getElementById(stepId).classList.add('active');
+    }
+</script>
+</body>
+</html>
