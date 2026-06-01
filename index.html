@@ -75,7 +75,7 @@
 
         .progress-bar {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             margin-bottom: 40px;
             background: rgba(15, 23, 42, 0.05);
             padding: 6px;
@@ -85,10 +85,10 @@
         .progress-step {
             flex: 1;
             text-align: center;
-            padding: 12px 8px;
+            padding: 12px 4px;
             background: transparent;
             font-weight: 700;
-            font-size: 0.9em;
+            font-size: 0.85em;
             border-radius: 12px;
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             color: var(--text-muted);
@@ -168,6 +168,59 @@
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
+        /* TIDE Fact Box Planning Layout Styles */
+        .fact-box-panel {
+            background: #f8fafc;
+            border: 2px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+        }
+        
+        .fact-box-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        @media (max-width: 650px) {
+            .fact-box-grid { grid-template-columns: 1fr; }
+        }
+
+        .fact-input-wrapper {
+            border-left: 5px solid #cbd5e1;
+            padding-left: 12px;
+        }
+        .fact-input-wrapper.t-label { border-color: var(--topic-color); }
+        .fact-input-wrapper.i-label { border-color: var(--idea-color); }
+        .fact-input-wrapper.d-label { border-color: var(--detail-color); }
+        .fact-input-wrapper.e-label { border-color: var(--ending-color); }
+
+        /* Floating Live Companion HUD */
+        .live-hud-companion {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        .hud-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .hud-chip {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            font-weight: 600;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+            border: 1px solid #e2e8f0;
+        }
+
         .btn-group {
             display: flex;
             gap: 14px;
@@ -220,15 +273,15 @@
 
         .bypass-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
             margin-top: 14px;
         }
 
         .bypass-btn {
             background-color: var(--dark-indigo);
-            padding: 12px;
-            font-size: 14px;
+            padding: 12px 6px;
+            font-size: 13px;
             box-shadow: 0 4px 10px rgba(30, 27, 75, 0.15);
         }
         .bypass-btn:hover {
@@ -402,11 +455,12 @@
     </div>
 
     <div class="progress-bar">
-        <div class="progress-step active" id="p-setup" onclick="handleDirectNav('setup', 'p-setup')">1. Registration</div>
+        <div class="progress-step active" id="p-setup" onclick="handleDirectNav('setup', 'p-setup')">1. Sign In</div>
         <div class="progress-step" id="p-read" onclick="handleDirectNav('read', 'p-read')">2. Deconstruct</div>
         <div class="progress-step" id="p-practice" onclick="handleDirectNav('practice', 'p-practice')">3. Sentence Practice</div>
-        <div class="progress-step" id="p-write" onclick="handleDirectNav('write', 'p-write')">4. Paragraph Writing</div>
-        <div class="progress-step" id="p-done" onclick="handleDirectNav('done', 'p-done')">5. Submit</div>
+        <div class="progress-step" id="p-plan" onclick="handleDirectNav('plan', 'p-plan')">4. Fact Box Plan</div>
+        <div class="progress-step" id="p-write" onclick="handleDirectNav('write', 'p-write')">5. Paragraph Writing</div>
+        <div class="progress-step" id="p-done" onclick="handleDirectNav('done', 'p-done')">6. Submit</div>
     </div>
 
     <div class="screen active" id="screen-setup">
@@ -415,7 +469,8 @@
             <div class="bypass-grid">
                 <button class="bypass-btn" onclick="jumpDirectlyTo('read', 'p-read')">Step 2: Deconstruct</button>
                 <button class="bypass-btn" onclick="jumpDirectlyTo('practice', 'p-practice')">Step 3: Sentence Arena</button>
-                <button class="bypass-btn" onclick="jumpDirectlyTo('write', 'p-write')">Step 4: Paragraph Creator</button>
+                <button class="bypass-btn" onclick="jumpDirectlyTo('plan', 'p-plan')">Step 4: Fact Box Plan</button>
+                <button class="bypass-btn" onclick="jumpDirectlyTo('write', 'p-write')">Step 5: Paragraph Creator</button>
             </div>
         </div>
 
@@ -530,12 +585,56 @@
             <div class="feedback-box" id="p3-feedback"></div>
             <div class="btn-group">
                 <button class="secondary" onclick="forceEarlyExitSubmit()">Finish & Submit Now</button>
-                <button onclick="validateExercise3()">Verify & Advance to Paragraph</button>
+                <button onclick="validateExercise3()">Verify & Advance to Fact Box Plan</button>
             </div>
         </div>
     </div>
 
+    <div class="screen" id="screen-plan">
+        <div class="fact-box-panel">
+            <h2 style="margin: 0; color: var(--dark-indigo);">📝 Step 4: The TIDE Fact Box Planning Stage</h2>
+            <p style="margin: 4px 0 25px 0; color: var(--text-muted); font-size: 1em;">Now that your brain is warmed up, gather your raw details before starting your full paragraph. Type short factual note fragments, not complete sentences.</p>
+            
+            <div class="fact-box-grid">
+                <div class="fact-input-wrapper t-label">
+                    <label style="color: var(--topic-color);">[T] Topic Core Idea:</label>
+                    <input type="text" id="plan-t" placeholder="e.g., Volcanoes change land & landscapes">
+                </div>
+                <div class="fact-input-wrapper e-label">
+                    <label style="color: var(--ending-color);">[E] Ending Wrap-up thought:</label>
+                    <input type="text" id="plan-e" placeholder="e.g., Nature's most dominant physical force">
+                </div>
+                <div class="fact-input-wrapper i-label" style="grid-column: 1 / -1;">
+                    <label style="color: var(--idea-color);">[I] Important Idea 1 (First Concept Subcategory):</label>
+                    <input type="text" id="plan-i1" placeholder="e.g., Physical underground heat / lava pressure mechanics">
+                </div>
+                <div class="fact-input-wrapper d-label" style="grid-column: 1 / -1;">
+                    <label style="color: var(--detail-color);">[D] Supporting Details / Facts for Idea 1:</label>
+                    <input type="text" id="plan-d1" placeholder="e.g., Magma passes 1200 degrees, bursts chambers, liquid rock fields">
+                </div>
+                <div class="fact-input-wrapper i-label" style="grid-column: 1 / -1;">
+                    <label style="color: var(--idea-color);">[I] Important Idea 2 (Second Concept Subcategory):</label>
+                    <input type="text" id="plan-i2" placeholder="e.g., Airborne hazards / atmospheric dangers">
+                </div>
+                <div class="fact-input-wrapper d-label" style="grid-column: 1 / -1;">
+                    <label style="color: var(--detail-color);">[D] Supporting Details / Facts for Idea 2:</label>
+                    <input type="text" id="plan-d2" placeholder="e.g., Sulfur dioxide ash clouds, block sunlight for miles, choking gas">
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-group">
+            <button class="secondary" onclick="switchScreen('practice', 'p-practice')">Back to Practice Arena</button>
+            <button onclick="savePlanAndGoToParagraphs()">Save Plan & Lock in Paragraphs</button>
+        </div>
+    </div>
+
     <div class="screen" id="screen-write">
+        <div class="live-hud-companion">
+            <strong style="color: var(--dark-indigo);">💡 Target Goal Notes (From Your Fact Box Tab):</strong>
+            <div class="hud-flex" id="hud-write-anchors"></div>
+        </div>
+
         <div id="mode-badge-display" class="badge-mode">Standard Mode</div>
         <h2 id="write-step-title">Step 1: Write your Green Topic Sentence</h2>
         <p id="write-step-desc">Introduce the overall concept of your paragraph clearly.</p>
@@ -587,7 +686,6 @@
         text: "entry.1654113150",
         feedback: "entry.155014666",
         
-        // Exact matching structure fields extracted from form metadata URL
         practiceSimple: "entry.373027028",   
         practiceCompound: "entry.1421095894", 
         practiceComplex: "entry.11100232"   
@@ -612,14 +710,16 @@
     let currentSelectedMode = "Standard";
     let reachedParagraphStage = false;
     let practiceCache = { simple: "", compound: "", complex: "" };
+    
+    let customFactBoxPlan = { t: "", i1: "", d1: "", i2: "", d2: "", e: "" };
 
     const writeSteps = [
-        { key: 'T', name: 'Topic Sentence (Green)', color: 'var(--topic-color)', desc: 'Introduce the core topic clearly.', help: ['Many scientists observe that...', 'Across the world, volcanic regions impact...'] },
-        { key: 'I1', name: 'First Important Idea (Yellow)', color: 'var(--idea-color)', desc: 'Introduce your first structural sub-topic category.', help: ['One critical feature to analyze involves...', 'First of all, volcanoes can be categorized by...'] },
-        { key: 'D1', name: 'First Detail / Evidence (Orange)', color: 'var(--detail-color)', desc: 'Provide explicit evidence.', help: ['For instance, Mount Vesuvius, a highly volatile mountain, erupted...', 'Data shows that lava, a molten liquid rock, measures...'] },
-        { key: 'I2', name: 'Second Important Idea (Yellow)', color: 'var(--idea-color)', desc: 'Switch to a brand new sub-topic concept.', help: ['Aside from physical structures, geographic distribution shows...', 'In addition to shape, internal pressure mechanics determine...'] },
-        { key: 'D2', name: 'Second Detail / Evidence (Orange)', color: 'var(--detail-color)', desc: 'Provide data or proof for your second idea.', help: ['Specifically, records indicate that...', 'To illustrate this point, over forty eruptions occur...'] },
-        { key: 'E', name: 'Ending Sentence (Red)', color: 'var(--ending-color)', desc: 'Synthesise your main points and state the summary conclusion.', help: ['Ultimately, assessing these variables proves that...', 'Therefore, grouping classifications helps scientists predict...'] }
+        { key: 'T', name: 'Topic Sentence (Green)', color: 'var(--topic-color)', planKey: 't', desc: 'Introduce the core topic clearly.', help: ['Many scientists observe that...', 'Across the world, volcanic regions impact...'] },
+        { key: 'I1', name: 'First Important Idea (Yellow)', color: 'var(--idea-color)', planKey: 'i1', desc: 'Introduce your first structural sub-topic category.', help: ['One critical feature to analyze involves...', 'First of all, volcanoes can be categorized by...'] },
+        { key: 'D1', name: 'First Detail / Evidence (Orange)', color: 'var(--detail-color)', planKey: 'd1', desc: 'Provide explicit evidence.', help: ['For instance, Mount Vesuvius, a highly volatile mountain, erupted...', 'Data shows that lava, a molten liquid rock, measures...'] },
+        { key: 'I2', name: 'Second Important Idea (Yellow)', color: 'var(--idea-color)', planKey: 'i2', desc: 'Switch to a brand new sub-topic concept.', help: ['Aside from physical structures, geographic distribution shows...', 'In addition to shape, internal pressure mechanics determine...'] },
+        { key: 'D2', name: 'Second Detail / Evidence (Orange)', color: 'var(--detail-color)', planKey: 'd2', desc: 'Provide data or proof for your second idea.', help: ['Specifically, records indicate that...', 'To illustrate this point, over forty eruptions occur...'] },
+        { key: 'E', name: 'Ending Sentence (Red)', color: 'var(--ending-color)', planKey: 'e', desc: 'Synthesise your main points and state the summary conclusion.', help: ['Ultimately, assessing these variables proves that...', 'Therefore, grouping classifications helps scientists predict...'] }
     ];
 
     function toggleCustomInput() {
@@ -630,6 +730,13 @@
     function initializeBackgroundData() {
         currentSelectedMode = document.getElementById('writing-mode').value;
         const topicSelect = document.getElementById('lesson-topic').value;
+        
+        customFactBoxPlan.t = document.getElementById('plan-t').value.trim() || "No core topic notes added.";
+        customFactBoxPlan.i1 = document.getElementById('plan-i1').value.trim() || "No primary subcategory notes added.";
+        customFactBoxPlan.d1 = document.getElementById('plan-d1').value.trim() || "No proof details added.";
+        customFactBoxPlan.i2 = document.getElementById('plan-i2').value.trim() || "No secondary subcategory notes added.";
+        customFactBoxPlan.d2 = document.getElementById('plan-d2').value.trim() || "No backup details added.";
+        customFactBoxPlan.e = document.getElementById('plan-e').value.trim() || "No ending summary notes added.";
         
         if (topicSelect === 'Custom') {
             determinedTopicName = document.getElementById('custom-topic-name').value.trim() || "Custom Topic";
@@ -654,6 +761,28 @@
         const badge = document.getElementById('mode-badge-display');
         badge.innerText = currentSelectedMode + " Challenge Activated";
         badge.className = (currentSelectedMode === 'Extension') ? "badge-mode ext" : "badge-mode";
+    }
+
+    function savePlanAndGoToParagraphs() {
+        initializeBackgroundData();
+        switchScreen('write', 'p-write');
+        updateWriteWizardStep();
+    }
+
+    function updateParagraphHUDHighlights() {
+        const writeHud = document.getElementById('hud-write-anchors');
+        writeHud.innerHTML = "";
+        
+        writeSteps.forEach((step, idx) => {
+            let activeStyle = (idx === activeWriteIndex) ? `background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.1); border: 2px solid ${step.color};` : `opacity: 0.55; border-top: 3px solid ${step.color};`;
+            let displayNoteText = customFactBoxPlan[step.planKey] || "No target logged.";
+            
+            let chip = document.createElement('div');
+            chip.className = "hud-chip";
+            chip.style = activeStyle;
+            chip.innerHTML = `<strong>${step.key} Note:</strong> ${displayNoteText}`;
+            writeHud.appendChild(chip);
+        });
     }
 
     function startLesson() {
@@ -831,12 +960,10 @@
         }
 
         practiceCache.complex = val;
-        reachedParagraphStage = true;
         fbox.className = "feedback-box success";
-        fbox.innerText = "Complex structure verified. Advancing to full paragraph building.";
+        fbox.innerText = "Complex structure verified. Moving forward to your Fact Box Plan.";
         setTimeout(() => {
-            switchScreen('write', 'p-write');
-            updateWriteWizardStep();
+            switchScreen('plan', 'p-plan');
         }, 1500);
     }
 
@@ -894,6 +1021,7 @@
         document.getElementById('btn-write-back').style.visibility = (activeWriteIndex === 0) ? 'hidden' : 'visible';
         
         currentStep.activeHelpCache = helpStarters;
+        updateParagraphHUDHighlights();
         renderLiveNotebookPreview();
     }
 
@@ -1038,7 +1166,6 @@
     function submitToGoogleForm() {
         const name = document.getElementById('student-name').value;
         const year = document.getElementById('year-level').value;
-        
         const statsSummary = `Mode: ${currentSelectedMode}`;
         
         let combinedParagraphText = "";
@@ -1054,7 +1181,6 @@
             combinedParagraphText = "[Student submitted practice milestones only]";
         }
 
-        // URL Parameters fully updated and mapped to your explicit Google Form question IDs
         const prefilledUrl = `${FORM_VIEW_URL}?usp=pp_url` +
             `&${ENTRY_IDS.name}=${encodeURIComponent(name)}` +
             `&${ENTRY_IDS.year}=${encodeURIComponent(year)}` +
