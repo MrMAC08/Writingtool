@@ -444,6 +444,21 @@
             color: #86198f;
             border: 1px solid #f5d0fe;
         }
+
+        /* Comma Teaching Panel Style */
+        .comma-rules-dashboard {
+            background: #fdf2f8; 
+            border-left: 5px solid #ec4899; 
+            padding: 18px; 
+            border-radius: 14px; 
+            margin-bottom: 25px; 
+            font-size: 0.95em;
+        }
+        .comma-rules-dashboard ul {
+            margin: 6px 0 0 0;
+            padding-left: 20px;
+            color: #4c0519;
+        }
     </style>
 </head>
 <body>
@@ -544,6 +559,14 @@
         <h2>Sentence Structure Practice</h2>
         <p>Transform your thoughts progressively through three grammatical phases.</p>
         
+        <div class="comma-rules-dashboard">
+            <strong style="color: #9d174d;">🚨 Essential Comma Safety Rules:</strong>
+            <ul>
+                <li><strong>Rule 1:</strong> Use a comma before <em>and, but, so</em> <strong>ONLY</strong> if the second half has its own subject and could be a complete standalone sentence! (Don't write: <em>"I ran, and fell."</em>)</li>
+                <li><strong>Rule 2:</strong> Never put a comma before <em>because</em> when it is in the middle or end of your sentence!</li>
+            </ul>
+        </div>
+
         <div class="sub-step-container active" id="p-sub-1">
             <div class="practice-box">
                 <h4>Exercise 1: The Simple Sentence</h4>
@@ -911,17 +934,37 @@
         const val = document.getElementById('practice-compound').value.trim();
         const fbox = document.getElementById('p2-feedback');
         fbox.style.display = "block";
-
         let lower = val.toLowerCase();
+
         if(!/^[A-Z]/.test(val) || !/[.!?]$/.test(val)) {
             fbox.className = "feedback-box";
             fbox.innerText = "Punctuation Check: Ensure standard sentence start and end punctuation marks are present.";
             return;
         }
+
+        // Mid-sentence because rule checker trap
+        if (lower.includes(", because") || lower.includes(", since")) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "⚠️ Comma Trap! Never place a comma right before 'because' or 'since' when it sits in the middle or end of a sentence. Remove it!";
+            return;
+        }
+
         if(!lower.includes(", but") && !lower.includes(", so") && !lower.includes(", and")) {
             fbox.className = "feedback-box";
             fbox.innerText = "Comma & Conjunction Check: Connect your clauses using a comma directly followed by a linking word (e.g., ', so', ', and', or ', but').";
             return;
+        }
+
+        // Smart predicate chunk extractor: Verify both sides are real complete sentences
+        let splitText = lower.split(/,(?: and| but| so)/);
+        if (splitText.length > 1) {
+            let secondPart = splitText[1].trim().replace(/[.!?]/g, "");
+            let words = secondPart.split(/\s+/);
+            if (words.length < 2) {
+                fbox.className = "feedback-box";
+                fbox.innerText = "⚠️ Comma Trap! You used a comma before your joining word, but the second part isn't a complete sentence on its own. (Example: Don't write 'The volcano rumbled, and smoked.' Write 'The volcano rumbled and smoked.')";
+                return;
+            }
         }
         
         practiceCache.compound = val;
@@ -937,13 +980,21 @@
         const val = document.getElementById('practice-complex').value.trim();
         const fbox = document.getElementById('p3-feedback');
         fbox.style.display = "block";
-
         let lower = val.toLowerCase();
+
         if(!/^[A-Z]/.test(val) || !/[.!?]$/.test(val)) {
             fbox.className = "feedback-box";
             fbox.innerText = "Confirm baseline capitalization and ending punctuation are accurate.";
             return;
         }
+
+        // Check if because trap slipped back in mid-sentence
+        if (lower.includes(", because") || lower.includes(", since")) {
+            fbox.className = "feedback-box";
+            fbox.innerText = "⚠️ Comma Trap! When 'because' joins clauses in the middle of a sentence, it must not have a comma in front of it.";
+            return;
+        }
+
         if(!val.includes(",")) {
             fbox.className = "feedback-box";
             fbox.innerText = "Comma Check: This complex structure requires a comma to separate your introductory element from the main thought.";
@@ -1074,6 +1125,29 @@
             fbox.className = "feedback-box";
             fbox.innerText = "Punctuation Error: Ensure standard starting capitalization and matching ending punctuation marks.";
             return;
+        }
+
+        // Live Comma Trap Interceptor for Mid-Sentence Because
+        if (lowerInput.includes(", because") || lowerInput.includes(", since")) {
+            fbox.style.display = "block";
+            fbox.className = "feedback-box";
+            fbox.innerText = "⚠️ Comma Rule Violation! When joining ideas mid-sentence using 'because' or 'since', a comma must not be placed before it. Remove the comma.";
+            return;
+        }
+
+        // Live Comma Trap Interceptor for Weak Actions (e.g., ", and exploded.")
+        if (lowerInput.includes(", and ") || lowerInput.includes(", but ") || lowerInput.includes(", so ")) {
+            let parts = lowerInput.split(/,(?: and| but| so)/);
+            if (parts.length > 1) {
+                let textChunk = parts[1].trim().replace(/[.!?]/g, "");
+                let chunkWords = textChunk.split(/\s+/);
+                if (chunkWords.length < 2) {
+                    fbox.style.display = "block";
+                    fbox.className = "feedback-box";
+                    fbox.innerText = "⚠️ Comma Rule Violation! You put a comma before your joining word, but the segment that follows cannot stand alone as a sentence. Remove the comma!";
+                    return;
+                }
+            }
         }
 
         if (currentSelectedMode === 'Extension') {
