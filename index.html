@@ -168,7 +168,6 @@
             box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
         }
 
-        /* TIDE Fact Box Planning Layout Styles */
         .fact-box-panel {
             background: #f8fafc;
             border: 2px solid var(--border-color);
@@ -195,7 +194,6 @@
         .fact-input-wrapper.d-label { border-color: var(--detail-color); }
         .fact-input-wrapper.e-label { border-color: var(--ending-color); }
 
-        /* Floating Live Companion HUD */
         .live-hud-companion {
             background: #f8fafc;
             border: 2px dashed #cbd5e1;
@@ -445,7 +443,6 @@
             border: 1px solid #f5d0fe;
         }
 
-        /* Comma Teaching Panel Style */
         .comma-rules-dashboard {
             background: #fdf2f8; 
             border-left: 5px solid #ec4899; 
@@ -616,7 +613,7 @@
     <div class="screen" id="screen-plan">
         <div class="fact-box-panel">
             <h2 style="margin: 0; color: var(--dark-indigo);">📝 Step 4: The TIDE Fact Box Planning Stage</h2>
-            <p style="margin: 4px 0 25px 0; color: var(--text-muted); font-size: 1em;">Now that your brain is warmed up, gather your raw details before starting your full paragraph. Type short factual note fragments, not complete sentences.</p>
+            <p style="margin: 4px 0 25px 0; color: var(--text-muted); font-size: 1em;">Gather your raw details before starting your full paragraph. Type short factual note fragments, not complete sentences.</p>
             
             <div class="fact-box-grid">
                 <div class="fact-input-wrapper t-label">
@@ -686,13 +683,19 @@
     </div>
 
     <div class="screen" id="screen-done">
-        <h2>Paragraph Assembly Complete</h2>
-        <p>Review your compiled text below before submitting the finalized document.</p>
+        <h2>🎉 Paragraph Assembly Complete!</h2>
+        <p>Review your compiled text below. Switch options to display structural mapping components or extract clean publishing copies.</p>
         
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button id="tab-analysis" class="secondary" style="padding: 10px; font-size: 14px;" onclick="toggleFinalView('analysis')">View TIDE Analysis Layout</button>
+            <button id="tab-published" style="padding: 10px; font-size: 14px; background-color: #10b981;" onclick="toggleFinalView('published')">✨ Format for Publishing</button>
+        </div>
+
         <div id="final-preview" style="background:#f8fafc; padding:25px; border-radius:16px; margin-bottom:25px; border:2px solid #e2e8f0; white-space: pre-wrap; font-weight:600; color: var(--text-main);"></div>
 
         <div class="btn-group">
             <button class="secondary" id="btn-edit-fallback" onclick="returnToEditFromEnd()">Edit Draft</button>
+            <button id="btn-print-document" style="background-color: #8b5cf6; display: none;" onclick="printPublishedParagraph()">🖨️ Print Published Copy</button>
             <button onclick="submitToGoogleForm()">Transmit Data to Ledger Form</button>
         </div>
     </div>
@@ -735,6 +738,7 @@
     let practiceCache = { simple: "", compound: "", complex: "" };
     
     let customFactBoxPlan = { t: "", i1: "", d1: "", i2: "", d2: "", e: "" };
+    let finalPublishedParagraphGlobal = "";
 
     const writeSteps = [
         { key: 'T', name: 'Topic Sentence (Green)', color: 'var(--topic-color)', planKey: 't', desc: 'Introduce the core topic clearly.', help: ['Many scientists observe that...', 'Across the world, volcanic regions impact...'] },
@@ -942,7 +946,6 @@
             return;
         }
 
-        // Mid-sentence because rule checker trap
         if (lower.includes(", because") || lower.includes(", since")) {
             fbox.className = "feedback-box";
             fbox.innerText = "⚠️ Comma Trap! Never place a comma right before 'because' or 'since' when it sits in the middle or end of a sentence. Remove it!";
@@ -955,14 +958,13 @@
             return;
         }
 
-        // Smart predicate chunk extractor: Verify both sides are real complete sentences
         let splitText = lower.split(/,(?: and| but| so)/);
         if (splitText.length > 1) {
             let secondPart = splitText[1].trim().replace(/[.!?]/g, "");
             let words = secondPart.split(/\s+/);
             if (words.length < 2) {
                 fbox.className = "feedback-box";
-                fbox.innerText = "⚠️ Comma Trap! You used a comma before your joining word, but the second part isn't a complete sentence on its own. (Example: Don't write 'The volcano rumbled, and smoked.' Write 'The volcano rumbled and smoked.')";
+                fbox.innerText = "⚠️ Comma Trap! You used a comma before your joining word, but the segment that follows can't stand alone as a sentence. (Example: Don't write 'The volcano rumbled, and smoked.' Write 'The volcano rumbled and smoked.')";
                 return;
             }
         }
@@ -988,7 +990,6 @@
             return;
         }
 
-        // Check if because trap slipped back in mid-sentence
         if (lower.includes(", because") || lower.includes(", since")) {
             fbox.className = "feedback-box";
             fbox.innerText = "⚠️ Comma Trap! When 'because' joins clauses in the middle of a sentence, it must not have a comma in front of it.";
@@ -1127,7 +1128,6 @@
             return;
         }
 
-        // Live Comma Trap Interceptor for Mid-Sentence Because
         if (lowerInput.includes(", because") || lowerInput.includes(", since")) {
             fbox.style.display = "block";
             fbox.className = "feedback-box";
@@ -1135,7 +1135,6 @@
             return;
         }
 
-        // Live Comma Trap Interceptor for Weak Actions (e.g., ", and exploded.")
         if (lowerInput.includes(", and ") || lowerInput.includes(", but ") || lowerInput.includes(", so ")) {
             let parts = lowerInput.split(/,(?: and| but| so)/);
             if (parts.length > 1) {
@@ -1209,25 +1208,72 @@
 
     function showFinalPreview() {
         switchScreen('done', 'p-done');
+        toggleFinalView('analysis');
+    }
+
+    function toggleFinalView(viewMode) {
         const preview = document.getElementById('final-preview');
+        const printBtn = document.getElementById('btn-print-document');
+        const tabAnalysis = document.getElementById('tab-analysis');
+        const tabPublished = document.getElementById('tab-published');
         
         let paragraphHasContent = false;
         writeSteps.forEach((s, idx) => { if (typedSentences[idx] && typedSentences[idx].length > 2) paragraphHasContent = true; });
 
         if (!paragraphHasContent) {
             document.getElementById('btn-edit-fallback').style.display = 'none';
+            printBtn.style.display = 'none';
             preview.innerHTML = `<h3 style="margin-top:0;">Compiled Sentence Exercises (${currentSelectedMode} Mode):</h3>`;
             preview.innerHTML += `<strong>Exercise 1 (Simple Sentence):</strong> ${practiceCache.simple || "[Not completed/Bypassed]"}\n\n`;
             preview.innerHTML += `<strong>Exercise 2 (Compound Sentence):</strong> ${practiceCache.compound || "[Not completed/Bypassed]"}\n\n`;
             preview.innerHTML += `<strong>Exercise 3 (Complex Sentence):</strong> ${practiceCache.complex || "[Not completed/Bypassed]"}\n\n`;
             preview.innerHTML += `<span style="color:var(--ending-color); font-weight:bold;">[Paragraph phase omitted or skipped via manual router]</span>`;
-        } else {
+            return;
+        }
+
+        if (viewMode === 'analysis') {
+            tabAnalysis.className = ""; 
+            tabPublished.className = "secondary";
+            printBtn.style.display = 'none';
+            
             document.getElementById('btn-edit-fallback').style.display = 'inline-block';
-            preview.innerHTML = `<h3 style="margin-top:0;">Compiled Paragraph Output (${currentSelectedMode} Mode):</h3>`;
+            preview.innerHTML = `<h3 style="margin-top:0; color: var(--dark-indigo);">TIDE Structural Breakdown:</h3>`;
             writeSteps.forEach((step, idx) => {
                 let contentLine = typedSentences[idx] || "[Bypassed/Blank]";
-                preview.innerHTML += `<span style="background-color:${step.color}; color:white; padding:3px 9px; border-radius:6px; font-size:0.85em; font-weight:800; margin-right:8px;">${step.name}</span>\n${contentLine}\n\n`;
+                preview.innerHTML += `<div style="margin-bottom: 12px;"><span style="background-color:${step.color}; color:white; padding:3px 9px; border-radius:6px; font-size:0.85em; font-weight:800; margin-right:8px; display:inline-block; min-width:180px; text-align:center;">${step.name}</span> <span style="font-size:1.05em;">${contentLine}</span></div>`;
             });
+        } 
+        else if (viewMode === 'published') {
+            tabAnalysis.className = "secondary";
+            tabPublished.className = ""; 
+            printBtn.style.display = 'inline-block'; 
+
+            let paragraphBlock = "";
+            writeSteps.forEach((step, idx) => {
+                if (typedSentences[idx] && typedSentences[idx].trim().length > 0) {
+                    paragraphBlock += typedSentences[idx].trim() + " ";
+                }
+            });
+
+            finalPublishedParagraphGlobal = paragraphBlock.trim();
+
+            preview.innerHTML = `
+                <div style="background: white; border: 1px solid #cbd5e1; padding: 30px; border-radius: 12px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02); margin-bottom: 30px;">
+                    <div style="text-align: center; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px; margin-bottom: 20px;">
+                        <h3 style="margin: 0; font-family: 'Quicksand', sans-serif; color: var(--dark-indigo); font-size: 1.5em;">${determinedTopicName}</h3>
+                        <p style="margin: 5px 0 0 0; color: var(--text-muted); font-style: italic;">By ${document.getElementById('student-name').value || 'An Aspiring Author'}</p>
+                    </div>
+                    <p style="font-size: 1.2em; line-height: 1.8; color: #1e293b; font-family: 'Nunito', sans-serif; font-weight: 500; text-indent: 30px; margin: 0;">
+                        ${finalPublishedParagraphGlobal}
+                    </p>
+                </div>
+
+                <div>
+                    <label style="color: var(--dark-indigo); font-weight: 800; display: block; margin-bottom: 6px;">📋 Plain Copy-Paste Box:</label>
+                    <textarea readonly style="width: 100%; height: 110px; padding: 12px; border: 2px solid #cbd5e1; border-radius: 10px; background-color: #f1f5f9; color: #334155; font-family: Arial, sans-serif; font-size: 14px; font-weight: 500; resize: none; box-sizing: border-box;" onclick="this.select()">${finalPublishedParagraphGlobal}</textarea>
+                    <small style="color: var(--text-muted); display: block; margin-top: 4px; font-style: italic;">Click inside the box above to instantly highlight and copy your text for Google Docs or school portals.</small>
+                </div>
+            `;
         }
     }
 
@@ -1235,6 +1281,41 @@
         activeWriteIndex = writeSteps.length - 1;
         switchScreen('write', 'p-write');
         updateWriteWizardStep();
+    }
+
+    function printPublishedParagraph() {
+        const studentName = document.getElementById('student-name').value || 'Anonymous Author';
+        const yearLevel = document.getElementById('year-level').value || '';
+        const topicTitle = determinedTopicName;
+        
+        const printWindow = window.open('', '_blank', 'height=600,width=800');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>${topicTitle} - Published Paragraph</title>
+                <style>
+                    body { font-family: 'Times New Roman', Times, serif; padding: 50px; line-height: 2; color: #000; background: #fff; }
+                    .meta-header { text-align: right; font-family: Arial, sans-serif; font-size: 0.9em; color: #555; border-bottom: 1px solid #000; padding-bottom: 10px; margin-bottom: 40px; }
+                    h1 { text-align: center; font-size: 2.25em; margin-bottom: 5px; }
+                    .author { text-align: center; font-style: italic; font-size: 1.2em; margin-bottom: 40px; }
+                    .content-paragraph { font-size: 1.35em; text-align: justify; text-indent: 40px; }
+                </style>
+            </head>
+            <body>
+                <div class="meta-header">
+                    <strong>Writer:</strong> ${studentName} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>Class:</strong> ${yearLevel}<br>
+                    <strong>Framework:</strong> TIDE Structural Writing Masterclass
+                </div>
+                <h1>${topicTitle}</h1>
+                <div class="author">Written by ${studentName}</div>
+                <div class="content-paragraph">${finalPublishedParagraphGlobal}</div>
+                <script>
+                    window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); };
+                <\/script>
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
     }
 
     function submitToGoogleForm() {
