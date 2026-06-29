@@ -530,7 +530,7 @@
 
     <div class="screen" id="screen-read">
         <h2>Deconstruct the Model Text</h2>
-        <p>Select a sentence from the text below, then identify its matching TIDE structural category.</p>
+        <p style="color: var(--text-muted); font-weight: 600; margin-bottom: 20px;">⚠️ <strong>Heads up!</strong> The sentences below have been scrambled. Read carefully to hunt down and identify each structural TIDE element!</p>
         
         <div class="deconstruct-text" id="interactive-text-container"></div>
 
@@ -547,7 +547,7 @@
         <div class="feedback-box" id="read-feedback"></div>
 
         <div class="btn-group">
-            <button class="secondary" onclick="renderDeconstructionText()">Reset Analysis</button>
+            <button class="secondary" onclick="renderDeconstructionText()">Reset & Reshuffle Analysis</button>
             <button onclick="goToPracticeArena()">Proceed to Sentence Practice</button>
         </div>
     </div>
@@ -771,11 +771,12 @@
             if(rawText) {
                 const rawSentences = rawText.split(/(?=\[[TIDE]\])/g);
                 currentLessonData = rawSentences.map(s => {
+                    let cleaned = s.trim();
                     let type = 'T';
-                    if(s.startsWith('[I]')) type = 'I';
-                    if(s.startsWith('[D]')) type = 'D';
-                    if(s.startsWith('[E]')) type = 'E';
-                    return { type: type, text: s.replace(/\[[TIDE]\]/g, '').trim() };
+                    if(cleaned.startsWith('[I]')) type = 'I';
+                    if(cleaned.startsWith('[D]')) type = 'D';
+                    if(cleaned.startsWith('[E]')) type = 'E';
+                    return { type: type, text: cleaned.replace(/\[[TIDE]\]/g, '').trim() };
                 }).filter(obj => obj.text.length > 2);
             } else {
                 currentLessonData = [...volcanoPassageVariants[0]];
@@ -860,12 +861,16 @@
         document.getElementById('read-feedback').style.display = "none";
         selectedSentenceIndex = null;
 
-        currentLessonData.forEach((item, idx) => {
+        let scrambledData = [...currentLessonData]
+            .map((value, idx) => ({ value, originalIdx: idx }))
+            .sort(() => Math.random() - 0.5);
+
+        scrambledData.forEach((item) => {
             let div = document.createElement('div');
             div.className = "sentence-block";
-            div.id = `sentence-block-${idx}`;
-            div.innerText = item.text;
-            div.onclick = () => highlightSentenceBlock(idx);
+            div.id = `sentence-block-${item.originalIdx}`;
+            div.innerText = item.value.text;
+            div.onclick = () => highlightSentenceBlock(item.originalIdx);
             container.appendChild(div);
         });
     }
