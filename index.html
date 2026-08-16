@@ -512,6 +512,8 @@
                 <label for="lesson-topic">Topic Selection:</label>
                 <select id="lesson-topic" onchange="toggleCustomInput()">
                     <option value="Volcanoes">Volcanoes Model Text</option>
+                    <option value="Sharks">Sharks Model Text</option>
+                    <option value="Space Exploration">Space Exploration Model Text</option>
                     <option value="Custom">Custom Topic (Paste Your Own Model Text)</option>
                 </select>
             </div>
@@ -717,16 +719,33 @@
         practiceComplex: "entry.11100232"   
     };
 
-    const volcanoPassageVariants = [
-        [
+    // Preset passage library for Step 2 Deconstruction
+    const presetPassages = {
+        "Volcanoes": [
             { type: 'T', text: "Volcanoes are fascinating yet highly dangerous geological features found across Earth's surface." },
             { type: 'I', text: "The primary structural hazard stems from how a volcano builds up pressure before erupting." },
             { type: 'D', text: "For example, underground magma can reach temperatures exceeding 1200 degrees Celsius before exploding outward." },
             { type: 'I', text: "In addition to molten rock, eruptions release massive toxic clouds into the upper skies." },
             { type: 'D', text: "Specifically, dangerous clouds of sulfur dioxide and ash can choke out sunlight for miles around." },
             { type: 'E', text: "Ultimately, these explosive elements prove that volcanoes completely dominate their surrounding environments." }
+        ],
+        "Sharks": [
+            { type: 'T', text: "Apex ocean predators are essential for maintaining balanced marine ecosystems." },
+            { type: 'I', text: "Their extraordinary physical adaptations make them highly efficient hunters." },
+            { type: 'D', text: "For instance, specialized sensors in their snouts detect the faint electrical impulses of moving prey." },
+            { type: 'I', text: "Furthermore, their steady hunting habits keep fish populations healthy and controlled." },
+            { type: 'D', text: "Specifically, reefs without apex predators experience rapid environmental collapse and overpopulation." },
+            { type: 'E', text: "Therefore, protecting ocean predators preserves the health of world aquatic habitats." }
+        ],
+        "Space Exploration": [
+            { type: 'T', text: "Venturing into deep space pushes human scientific innovation to exciting new boundaries." },
+            { type: 'I', text: "Designing planetary space missions requires engineering solutions for hostile conditions." },
+            { type: 'D', text: "For example, advanced solar radiation shields and air recycling systems keep astronauts safe on long journeys." },
+            { type: 'I', text: "Additionally, space research generates surprising technological breakthroughs for everyday life on Earth." },
+            { type: 'D', text: "To illustrate, innovations like improved water filtration units and durable insulation originated in space programs." },
+            { type: 'E', text: "Consequently, expanding cosmic exploration drives crucial technological progress for all mankind." }
         ]
-    ];
+    };
 
     let currentLessonData = [];
     let determinedTopicName = "Volcanoes";
@@ -779,11 +798,11 @@
                     return { type: type, text: cleaned.replace(/\[[TIDE]\]/g, '').trim() };
                 }).filter(obj => obj.text.length > 2);
             } else {
-                currentLessonData = [...volcanoPassageVariants[0]];
+                currentLessonData = [...presetPassages["Volcanoes"]];
             }
         } else {
-            determinedTopicName = "Volcanoes";
-            currentLessonData = [...volcanoPassageVariants[0]];
+            determinedTopicName = topicSelect;
+            currentLessonData = [...(presetPassages[topicSelect] || presetPassages["Volcanoes"])];
         }
 
         const badge = document.getElementById('mode-badge-display');
