@@ -524,6 +524,13 @@
                 
                 <label for="custom-source-text">Paste Model Text Sentences (Include TIDE tags):</label>
                 <textarea id="custom-source-text" rows="5" placeholder="[T] Sharks are vital predators. [I] First, they track prey. [D] For example, they sense heartbeats. [E] Therefore, protecting them matters."></textarea>
+                
+                <!-- TEACHER LIVE BROADCAST BUTTON -->
+                <button type="button" 
+                        onclick="broadcastTeacherPassage()" 
+                        style="background-color: #8b5cf6; color: white; font-weight: bold; margin-top: 12px; padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; width: 100%;">
+                    📡 Push Live Text to All Students
+                </button>
             </div>
         </div>
 
@@ -1381,12 +1388,14 @@
         document.getElementById(stepId).classList.add('active');
     }
 </script>
-        <!-- Firebase App (Compat version works best for non-bundled single-page apps) -->
+
+<!-- Firebase SDK Libraries -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
+<!-- Firebase Initialization & Live Sync Script -->
 <script>
-  // Your Firebase configuration
+  // Replace these keys with your actual Firebase project configuration
   const firebaseConfig = {
     apiKey: "YOUR_API_KEY",
     authDomain: "YOUR_PROJECT.firebaseapp.com",
@@ -1397,9 +1406,43 @@
     appId: "YOUR_APP_ID"
   };
 
-  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
+
+  // 1. Teacher Broadcast Function
+  function broadcastTeacherPassage() {
+      const title = document.getElementById('custom-topic-name').value.trim() || "Custom Topic";
+      const rawText = document.getElementById('custom-source-text').value.trim();
+
+      if (!rawText) {
+          alert("Please enter tagged text [T], [I], [D], [E] before broadcasting.");
+          return;
+      }
+
+      database.ref('activeTidePassage').set({
+          title: title,
+          text: rawText,
+          updatedAt: Date.now()
+      }).then(() => {
+          alert("Success! Passage broadcasted to all active student screens.");
+      }).catch(err => {
+          alert("Error sending to database: " + err.message);
+      });
+  }
+
+  // 2. Student Real-Time Listener Function
+  database.ref('activeTidePassage').on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data && data.text) {
+          document.getElementById('lesson-topic').value = 'Custom';
+          toggleCustomInput();
+          
+          document.getElementById('custom-topic-name').value = data.title;
+          document.getElementById('custom-source-text').value = data.text;
+
+          initializeBackgroundData();
+      }
+  });
 </script>
 </body>
 </html>
