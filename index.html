@@ -8,6 +8,10 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Quicksand:wght@500;700;800&display=swap" rel="stylesheet">
     
+    <!-- Firebase SDK Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
     <style>
         :root {
             --primary-blue: #3b82f6;     
@@ -48,6 +52,7 @@
         .header-brand {
             text-align: center;
             margin-bottom: 35px;
+            position: relative;
         }
 
         h1 {
@@ -64,13 +69,6 @@
             font-weight: 600;
             font-size: 1.1em;
             margin: 0;
-        }
-
-        h2, h3, h4 {
-            font-family: 'Quicksand', sans-serif;
-            color: var(--dark-indigo);
-            font-weight: 700;
-            margin-top: 0;
         }
 
         .progress-bar {
@@ -267,6 +265,27 @@
             padding: 22px;
             border-radius: 18px;
             margin-bottom: 35px;
+            display: none; /* Hidden by default for students */
+        }
+
+        .teacher-unlock-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            font-size: 0.85em;
+            cursor: pointer;
+            box-shadow: none;
+            padding: 4px 8px;
+            width: auto;
+        }
+        .teacher-unlock-btn:hover {
+            color: var(--dark-indigo);
+            background: transparent;
+            box-shadow: none;
+            transform: none;
         }
 
         .bypass-grid {
@@ -464,6 +483,7 @@
     <div class="header-brand">
         <h1>TIDE Writing Academy</h1>
         <p class="brand-subtitle">Master structural composition sentence-by-sentence</p>
+        <button class="teacher-unlock-btn" onclick="unlockTeacherControls()">🔑 Teacher Controls</button>
     </div>
 
     <div class="progress-bar">
@@ -476,8 +496,7 @@
     </div>
 
     <div class="screen active" id="screen-setup">
-        <!-- TEACHER ROUTING HUB (Only displays if ?teacher=true in URL) -->
-        <div class="teacher-bypass-panel" id="teacher-hub-panel" style="display: none;">
+        <div class="teacher-bypass-panel" id="teacher-panel">
             <h4 style="margin: 0; color: var(--dark-indigo); font-size: 1.1em;">🏫 Teacher Routing Hub: Skip directly to a task</h4>
             <div class="bypass-grid">
                 <button class="bypass-btn" onclick="jumpDirectlyTo('read', 'p-read')">Step 2: Deconstruct</button>
@@ -515,24 +534,16 @@
                     <option value="Volcanoes">Volcanoes Model Text</option>
                     <option value="Sharks">Sharks Model Text</option>
                     <option value="Space Exploration">Space Exploration Model Text</option>
-                    <!-- HIDDEN FROM STUDENTS UNLESS ?teacher=true -->
-                    <option value="Custom" id="teacher-custom-option" style="display: none;">Custom Topic (Teacher Broadcast)</option>
+                    <option value="Custom">Custom Topic (Paste Your Own Model Text)</option>
                 </select>
             </div>
 
-            <!-- TEACHER BROADCAST PANEL (Only visible to Teacher) -->
             <div class="form-group full-width" id="custom-topic-group" style="display: none;">
                 <label for="custom-topic-name">Custom Topic Name:</label>
-                <input type="text" id="custom-topic-name" placeholder="e.g., Zoos" style="margin-bottom: 15px;">
+                <input type="text" id="custom-topic-name" placeholder="e.g., Sharks" style="margin-bottom: 15px;">
                 
                 <label for="custom-source-text">Paste Model Text Sentences (Include TIDE tags):</label>
-                <textarea id="custom-source-text" rows="5" placeholder="[T] Modern zoos play an essential role... [I] First, they help save endangered species..."></textarea>
-
-                <button type="button" 
-                        onclick="broadcastTeacherPassage()" 
-                        style="background-color: #8b5cf6; color: white; font-weight: bold; margin-top: 12px; padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; width: 100%;">
-                    📡 Push Live Text to All Students
-                </button>
+                <textarea id="custom-source-text" rows="5" placeholder="[T] Sharks are vital predators. [I] First, they track prey. [D] For example, they sense heartbeats. [E] Therefore, protecting them matters."></textarea>
             </div>
         </div>
 
@@ -570,7 +581,7 @@
         <div class="comma-rules-dashboard">
             <strong style="color: #9d174d;">🚨 Essential Comma Safety Rules:</strong>
             <ul>
-                <li><strong>Rule 1:</strong> Use a comma before <em>and, but, so</em> <strong>ONLY</strong> if the second half has its own subject and could be a complete standalone sentence!</li>
+                <li><strong>Rule 1:</strong> Use a comma before <em>and, but, so</em> <strong>ONLY</strong> if the second half has its own subject and could be a complete standalone sentence! (Don't write: <em>"I ran, and fell."</em>)</li>
                 <li><strong>Rule 2:</strong> Never put a comma before <em>because</em> when it is in the middle or end of your sentence!</li>
             </ul>
         </div>
@@ -713,6 +724,63 @@
 </div>
 
 <script>
+    // ==========================================
+    // OPTIONAL FIREBASE LIVE SYNC
+    // (Replace credentials below with your real project keys if syncing live topics)
+    // ==========================================
+    const firebaseConfig = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+        databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_PROJECT_ID.appspot.com",
+        messagingSenderId: "YOUR_SENDER_ID",
+        appId: "YOUR_APP_ID"
+    };
+
+    try {
+        if (firebaseConfig.apiKey !== "YOUR_API_KEY") {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.database();
+
+            // Listen for live topics sent by teacher.html
+            db.ref('currentTopic').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.text) {
+                    determinedTopicName = data.title || "Broadcast Topic";
+                    const rawSentences = data.text.split(/(?=\[[TIDE]\])/g);
+                    currentLessonData = rawSentences.map(s => {
+                        let cleaned = s.trim();
+                        let type = 'T';
+                        if(cleaned.startsWith('[I]')) type = 'I';
+                        if(cleaned.startsWith('[D]')) type = 'D';
+                        if(cleaned.startsWith('[E]')) type = 'E';
+                        return { type: type, text: cleaned.replace(/\[[TIDE]\]/g, '').trim() };
+                    }).filter(obj => obj.text.length > 2);
+
+                    if (document.getElementById('screen-read').classList.contains('active')) {
+                        renderDeconstructionText();
+                    }
+                }
+            });
+        }
+    } catch(e) {
+        console.log("Firebase not initialized yet or using offline preset passages.");
+    }
+
+    // ==========================================
+    // TEACHER PIN SYSTEM
+    // ==========================================
+    function unlockTeacherControls() {
+        const pin = prompt("Enter Teacher PIN code:");
+        if (pin === "1234") { // Change "1234" to any custom PIN you prefer
+            document.getElementById('teacher-panel').style.display = 'block';
+            alert("Teacher controls unlocked!");
+        } else if (pin !== null) {
+            alert("Incorrect PIN code.");
+        }
+    }
+
     const FORM_VIEW_URL = "https://docs.google.com/forms/d/e/1FAIpQLSfpsFKJzeAfu8NBSSh55fWBBJDNpX6wxFxJHyeeZkl2oe-cWQ/viewform";
     
     const ENTRY_IDS = {
@@ -728,6 +796,7 @@
         practiceComplex: "entry.11100232"   
     };
 
+    // Preset passage library for Step 2 Deconstruction
     const presetPassages = {
         "Volcanoes": [
             { type: 'T', text: "Volcanoes are fascinating yet highly dangerous geological features found across Earth's surface." },
@@ -996,7 +1065,7 @@
             let words = secondPart.split(/\s+/);
             if (words.length < 2) {
                 fbox.className = "feedback-box";
-                fbox.innerText = "⚠️ Comma Trap! You used a comma before your joining word, but the segment that follows can't stand alone as a sentence.";
+                fbox.innerText = "⚠️ Comma Trap! You used a comma before your joining word, but the segment that follows can't stand alone as a sentence. (Example: Don't write 'The volcano rumbled, and smoked.' Write 'The volcano rumbled and smoked.')";
                 return;
             }
         }
@@ -1085,13 +1154,13 @@
 
         if (currentSelectedMode === 'Extension') {
             if (currentStep.key === 'T') {
-                descText = "EXTENSION TASK: Write your Topic Sentence as a COMPOUND sentence. Connect two complete thoughts using a comma followed by 'but' or 'so'.";
+                descText = "EXTENSION TASK: Write your Topic Sentence as a COMPOUND sentence. You must connect two complete thoughts using a comma followed by 'but' or 'so'.";
                 helpStarters = ['Volcanoes form breathtaking landscapes, but they harbor deadly environmental forces.', 'Magma remains hidden deep underground, so human populations often underestimate...'];
             } else if (currentStep.key === 'I1' || currentStep.key === 'I2') {
-                descText = "EXTENSION TASK: Write this Idea sentence as a COMPLEX sentence. Start with an Adverb (-ly word) or a W-Start (While, When, Although) followed by a comma.";
+                descText = "EXTENSION TASK: Write this Idea sentence as a COMPLEX sentence. You must start with an Adverb (-ly word) or a W-Start (While, When, Although) followed by a comma.";
                 helpStarters = ['While pressure shifts silently inside the earth, hot gas escapes...', 'Slowly, shifting tectonic boundaries pull apart...'];
             } else if (currentStep.key === 'D1' || currentStep.key === 'D2') {
-                descText = "EXTENSION TASK: Write this Detail sentence incorporating an APPOSITIVE phrase wrapped in two commas.";
+                descText = "EXTENSION TASK: Write this Detail sentence incorporating an APPOSITIVE phrase. Drop an extra noun description directly into the middle wrapped in two commas.";
                 helpStarters = ['Mount Vesuvius, an infamous Italian stratovolcano, exploded...', 'Lava fields, burning expanses of liquid rock, solidify over months...'];
             }
         }
@@ -1149,7 +1218,7 @@
         if (startsWithBlocked) {
             fbox.style.display = "block";
             fbox.className = "feedback-box";
-            fbox.innerText = "Repetition Check Failed: Do not rely on generic openings like 'The', 'Then', or 'I'.";
+            fbox.innerText = "Repetition Check Failed: Do not rely on generic openings like 'The', 'Then', or 'I'. Choose a more descriptive starter.";
             return;
         }
 
@@ -1163,7 +1232,7 @@
         if (lowerInput.includes(", because") || lowerInput.includes(", since")) {
             fbox.style.display = "block";
             fbox.className = "feedback-box";
-            fbox.innerText = "⚠️ Comma Rule Violation! When joining ideas mid-sentence using 'because' or 'since', a comma must not be placed before it.";
+            fbox.innerText = "⚠️ Comma Rule Violation! When joining ideas mid-sentence using 'because' or 'since', a comma must not be placed before it. Remove the comma.";
             return;
         }
 
@@ -1175,7 +1244,7 @@
                 if (chunkWords.length < 2) {
                     fbox.style.display = "block";
                     fbox.className = "feedback-box";
-                    fbox.innerText = "⚠️ Comma Rule Violation! You put a comma before your joining word, but the segment that follows cannot stand alone as a sentence.";
+                    fbox.innerText = "⚠️ Comma Rule Violation! You put a comma before your joining word, but the segment that follows cannot stand alone as a sentence. Remove the comma!";
                     return;
                 }
             }
@@ -1186,7 +1255,7 @@
                 if (!lowerInput.includes(", but") && !lowerInput.includes(", so") && !lowerInput.includes(", and")) {
                     fbox.style.display = "block";
                     fbox.className = "feedback-box";
-                    fbox.innerText = "Extension Target Missed: Connect two complete thoughts with a comma followed by 'but', 'so', or 'and'.";
+                    fbox.innerText = "Extension Target Missed: Your Topic Sentence must be a Compound Sentence. Connect two complete thoughts with a comma followed by 'but', 'so', or 'and'.";
                     return;
                 }
             }
@@ -1202,7 +1271,7 @@
                 if (!validatesComplex) {
                     fbox.style.display = "block";
                     fbox.className = "feedback-box";
-                    fbox.innerText = "Extension Target Missed: Start this Idea sentence using an advanced structural opener (an -ly adverb or words like When, While, Because).";
+                    fbox.innerText = "Extension Target Missed: Start this Idea sentence using an advanced structural opener (an -ly adverb or a word like When, While, Because).";
                     return;
                 }
             }
@@ -1211,7 +1280,7 @@
                 if (commaCount < 2) {
                     fbox.style.display = "block";
                     fbox.className = "feedback-box";
-                    fbox.innerText = "Extension Target Missed: You must add an appositive description phrase inside this sentence, wrapped in two commas.";
+                    fbox.innerText = "Extension Target Missed: You must add an appositive description phrase inside this sentence, wrapped entirely in two commas.";
                     return;
                 }
             }
@@ -1388,81 +1457,6 @@
         document.getElementById(`screen-${screenId}`).classList.add('active');
         document.getElementById(stepId).classList.add('active');
     }
-</script>
-
-<!-- Firebase SDK Libraries -->
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
-
-<!-- Firebase Realtime Sync Script -->
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyA337jgHtI_LBMDxm8q2R_ZLLBw6Nb6DnE",
-    authDomain: "paragraph-writing-5c0c0.firebaseapp.com",
-    databaseURL: "https://paragraph-writing-5c0c0-default-rtdb.firebaseio.com",
-    projectId: "paragraph-writing-5c0c0",
-    storageBucket: "paragraph-writing-5c0c0.firebasestorage.app",
-    messagingSenderId: "1051981232168",
-    appId: "1:1051981232168:web:c4eea174a08bf47ec5dd1d",
-    measurementId: "G-XS16W7MZ70"
-  };
-
-  firebase.initializeApp(firebaseConfig);
-  const database = firebase.database();
-
-  // Reveal Teacher Controls ONLY if URL contains ?teacher=true
-  window.addEventListener('DOMContentLoaded', () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      if (urlParams.get('teacher') === 'true') {
-          const teacherOption = document.getElementById('teacher-custom-option');
-          if (teacherOption) teacherOption.style.display = 'block';
-
-          const teacherHub = document.getElementById('teacher-hub-panel');
-          if (teacherHub) teacherHub.style.display = 'block';
-      }
-  });
-
-  // 1. Teacher Broadcast Function
-  function broadcastTeacherPassage() {
-      const title = document.getElementById('custom-topic-name').value.trim() || "Custom Topic";
-      const rawText = document.getElementById('custom-source-text').value.trim();
-
-      if (!rawText) {
-          alert("Please enter tagged text [T], [I], [D], [E] before broadcasting.");
-          return;
-      }
-
-      database.ref('activeTidePassage').set({
-          title: title,
-          text: rawText,
-          updatedAt: Date.now()
-      }).then(() => {
-          alert("Success! Passage broadcasted to all active student screens.");
-      }).catch(err => {
-          alert("Error sending to database: " + err.message);
-      });
-  }
-
-  // 2. Student Real-Time Listener (Loads custom passage invisibly without tags)
-  database.ref('activeTidePassage').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data && data.text) {
-          document.getElementById('teacher-custom-option').style.display = 'block';
-          document.getElementById('lesson-topic').value = 'Custom';
-          
-          document.getElementById('custom-topic-name').value = data.title;
-          
-          // Show tagged version on teacher view, stripped version for safety
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get('teacher') === 'true') {
-              document.getElementById('custom-source-text').value = data.text;
-          } else {
-              document.getElementById('custom-source-text').value = data.text.replace(/\[[TIDE]\]/g, '').trim();
-          }
-
-          initializeBackgroundData();
-      }
-  });
 </script>
 </body>
 </html>
