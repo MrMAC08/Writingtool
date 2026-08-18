@@ -524,7 +524,7 @@
                 
                 <label for="custom-source-text">Paste Model Text Sentences (Include TIDE tags):</label>
                 <textarea id="custom-source-text" rows="5" placeholder="[T] Sharks are vital predators. [I] First, they track prey. [D] For example, they sense heartbeats. [E] Therefore, protecting them matters."></textarea>
-                
+
                 <button type="button" 
                         onclick="broadcastTeacherPassage()" 
                         style="background-color: #8b5cf6; color: white; font-weight: bold; margin-top: 12px; padding: 12px 18px; border: none; border-radius: 10px; cursor: pointer; width: 100%;">
@@ -1392,7 +1392,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
 <script>
-  // Your exact Firebase project keys + databaseURL integration
   const firebaseConfig = {
     apiKey: "AIzaSyA337jgHtI_LBMDxm8q2R_ZLLBw6Nb6DnE",
     authDomain: "paragraph-writing-5c0c0.firebaseapp.com",
@@ -1404,11 +1403,10 @@
     measurementId: "G-XS16W7MZ70"
   };
 
-  // Initialize Firebase & Realtime Database
   firebase.initializeApp(firebaseConfig);
   const database = firebase.database();
 
-  // 1. Teacher Broadcast Function (Pushes custom text live to database)
+  // 1. Teacher Broadcast Function
   function broadcastTeacherPassage() {
       const title = document.getElementById('custom-topic-name').value.trim() || "Custom Topic";
       const rawText = document.getElementById('custom-source-text').value.trim();
@@ -1429,7 +1427,7 @@
       });
   }
 
-  // 2. Student Real-Time Listener (Receives live passage updates)
+  // 2. Student Real-Time Listener
   database.ref('activeTidePassage').on('value', (snapshot) => {
       const data = snapshot.val();
       if (data && data.text) {
